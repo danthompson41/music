@@ -1,10 +1,4 @@
-export interface Chord {
-    root: string;
-    chordType: string;
-    extension: string | undefined;
-    bassNote: string | undefined;
-    extra: string | undefined;
-}
+import type { Chord } from './interfaces';
 
 export function splitChord(chord: string): Chord | string {
     const pattern = /^([A-G][#b]?)(maj|min|m|dim|aug|sus|add)?(2|4|6|7|9|11|13)?([^/]*)\/?([A-G][#b]?)?$/;

@@ -14,12 +14,10 @@ mode_intervals = {
 }
 
 # Define notes
-notes_sharps = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-notes_flats = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
 notes_set = [('C', 'B#'), ('C#', 'Db'), ('D', 'D'), ('D#', 'Eb'), ('E', 'Fb'), ('F', 'E#'), ('F#', 'Gb'), ('G', 'G'), ('G#', 'Ab'), ('A', 'A'), ('A#', 'Bb'), ('B', 'Cb')]
 
 # Function to find the enharmonic equivalent in notes_set
-def find_note_in_set(note: str) -> set[str]:
+def find_note_in_set(note: str) -> set[str] or None:
     for enharmonic_pair in notes_set:
         if note in enharmonic_pair:
             return enharmonic_pair
@@ -77,7 +75,7 @@ def get_nashville_number(note, scale):
     return f'b{scale.index(notes_set[note_index]) + 2}'
 
 
-def get_scale(key, mode, sharp=True):
+def get_scale(key, mode):
     key_tuple = find_note_in_set(key)
     if not key_tuple:
         return "Key root not found"
@@ -93,8 +91,7 @@ def get_scale(key, mode, sharp=True):
 
 def chord_to_nashville_chord(key, mode, chord: Chord):
     print("Converting chord to Nashville notation:", chord, "in", key, mode)
-    sharp = True if chord.root_note in notes_sharps else False
-    scale = get_scale(key, mode, sharp)
+    scale = get_scale(key, mode)
     number = get_nashville_number(chord.root_note, scale)
     bass_note = None
     if chord.bass_note:
@@ -168,6 +165,18 @@ class SongAnalyzer(object):
 # for i in SongAnalyzer('G').split_chord_progression('G G/A B7sus4 Em Gmaj7 A/F# Bm/E Gmaj7/A A/D').nashville_chords:
 #     print(fmt_nashville_notation(i))
 
-# I Love Louis Cole
-for i in SongAnalyzer('F#').split_chord_progression('F#maj7 F#m7 Bsus2 F# F#sus2 D6sus2 Bmaj7 F#').nashville_chords:
-    print(fmt_nashville_notation(i))
+# # I Love Louis Cole
+# for i in SongAnalyzer('F#').split_chord_progression('F#maj7 F#m7 Bsus2 F# F#sus2 D6sus2 Bmaj7 F#').nashville_chords:
+#     print(fmt_nashville_notation(i))
+
+# # You never give me your money
+# for i in SongAnalyzer('C').split_chord_progression('Am7 Dm7 G C Fmaj7 Dm*  E  Am').nashville_chords:
+#     print(fmt_nashville_notation(i))
+
+# # Tell your friends
+# for i in SongAnalyzer('A').split_chord_progression('D C#m Bm E C#m C#m7 C#m Bm Bm7').nashville_chords:
+#     print(fmt_nashville_notation(i))
+
+# # Gypsy Woman
+# for i in SongAnalyzer('G').split_chord_progression('Dm9 Dm7 Am7 Bbmaj7 Em7 Ebmaj7 Dm7').nashville_chords:
+#     print(fmt_nashville_notation(i))
