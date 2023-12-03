@@ -1,48 +1,54 @@
-drop table chord_progression_details,  artists, chords, genres, songs, progressions;
+drop table bands, songs, sections, chord_progressions, section_progressions, chords, progression_chords cascade;
 
--- Create Songs Table
+CREATE TABLE bands (
+    band_id UUID PRIMARY KEY,
+    name VARCHAR(100)
+);
+
 CREATE TABLE songs (
-    song_id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(), 
-    title VARCHAR(255) NOT NULL,
-    artist VARCHAR(255),
-    genre VARCHAR(100)
+    song_id UUID PRIMARY KEY,
+    band_id UUID,
+    title VARCHAR(100),
+    key VARCHAR(10),
+    FOREIGN KEY (band_id) REFERENCES bands(band_id)
 );
 
--- Create Chords Table
+CREATE TABLE sections (
+    section_id UUID PRIMARY KEY,
+    song_id UUID,
+    order_in_song INT,
+    name VARCHAR(50),
+    FOREIGN KEY (song_id) REFERENCES songs(song_id)
+);
+
+CREATE TABLE chord_progressions (
+    progression_id UUID PRIMARY KEY
+);
+
+CREATE TABLE section_progressions (
+    section_id UUID,
+    progression_id UUID,
+    order_in_section INT,
+    PRIMARY KEY (section_id, progression_id),
+    FOREIGN KEY (section_id) REFERENCES sections(section_id),
+    FOREIGN KEY (progression_id) REFERENCES chord_progressions(progression_id)
+);
+
 CREATE TABLE chords (
-    chord_id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
-    chord_name VARCHAR(50) NOT NULL,
-    chord_type VARCHAR(50),
-    chord_degree VARCHAR(10) NOT NULL,
-    chord_extension VARCHAR(10),
-    chord_bass_note VARCHAR(10),
-    chord_extra VARCHAR(10)
+    chord_id SERIAL PRIMARY KEY,
+    degree VARCHAR(10),
+    chord_type VARCHAR(10),
+    bass_note VARCHAR(10) NULL,
+    extension VARCHAR(10) NULL,
+    additional VARCHAR(10) NULL
 );
 
--- Create Progressions Table
-CREATE TABLE progressions (
-    progression_id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
-    song_id uuid REFERENCES songs(song_id),
-    progression_description TEXT
+CREATE TABLE progression_chords (
+    progression_id UUID,
+    chord_id INT,
+    order_in_progression INT,
+    PRIMARY KEY (progression_id, chord_id, order_in_progression),
+    FOREIGN KEY (progression_id) REFERENCES chord_progressions(progression_id),
+    FOREIGN KEY (chord_id) REFERENCES chords(chord_id)
 );
 
--- Create Chord Progression Details Table
-CREATE TABLE chord_progression_details (
-    detail_id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
-    progression_id uuid REFERENCES progressions(progression_id),
-    chord_id uuid REFERENCES chords(chord_id),
-    sequence_number INT,
-    duration INT
-);
-
--- Optional: Create Artists Table
-CREATE TABLE artists (
-    artist_id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
-    artist_name VARCHAR(255) NOT NULL
-);
-
--- Optional: Create Genre Table
-CREATE TABLE genres (
-    genre_id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
-    genre_name VARCHAR(100) NOT NULL
-);

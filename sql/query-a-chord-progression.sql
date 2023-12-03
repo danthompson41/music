@@ -1,15 +1,20 @@
--- SELECT *
--- FROM songs s
--- JOIN progressions p ON s.song_id = p.song_id;
--- -- JOIN chord_progression_details cpd ON p.progression_id = cpd.progression_id;
--- -- JOIN chords c ON cpd.chord_id = c.chord_id
--- -- -- WHERE s.title = 'Fictional Song 1'
--- -- ORDER BY cpd.sequence_number;
-
-SELECT s.title, c.chord_name, cpd.sequence_number, cpd.duration, p.progression_description
-FROM songs s
-JOIN progressions p ON s.song_id = p.song_id
-JOIN chord_progression_details cpd ON p.progression_id = cpd.progression_id
-JOIN chords c ON cpd.chord_id = c.chord_id
-WHERE s.title = 'Fictional Song 1'
-ORDER BY p.progression_description, cpd.sequence_number;
+SELECT
+    c.degree,
+    c.chord_type,
+    c.bass_note,
+    c.extension,
+    c.additional,
+    sec.name AS section_name
+FROM
+    songs s
+JOIN sections sec ON s.song_id = sec.song_id
+JOIN section_progressions sp ON sec.section_id = sp.section_id
+JOIN chord_progressions cp ON sp.progression_id = cp.progression_id
+JOIN progression_chords pc ON cp.progression_id = pc.progression_id
+JOIN chords c ON pc.chord_id = c.chord_id
+WHERE
+    s.title = 'Sunrise Symphony'
+ORDER BY
+    sec.order_in_song,
+    sp.order_in_section,
+    pc.order_in_progression;
