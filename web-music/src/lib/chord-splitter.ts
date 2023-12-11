@@ -8,7 +8,7 @@ export function splitChord(chord: string): Chord | string {
         return "Invalid chord format";
     }
 
-    const [, root, quality, extension, extra, bassNote] = match;
+    const [, degree, quality, extension, extra, bassNote] = match;
 
     let chordType: string;
     if (quality === 'm' || quality === 'min') {
@@ -22,10 +22,10 @@ export function splitChord(chord: string): Chord | string {
     }
 
     return {
-        root,
-        chordType,
+        degree,
+        chord_type: chordType,
         extension,
-        bassNote,
+        bass_note: bassNote,
         extra
     };
 }

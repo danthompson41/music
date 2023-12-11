@@ -16,6 +16,7 @@
 		"@sveltejs/adapter-auto": "^2.0.0",
 		"@sveltejs/adapter-vercel": "^3.1.0",
 		"@sveltejs/kit": "^1.27.4",
+		"@types/pg": "^8.10.9",
 		"@typescript-eslint/eslint-plugin": "^6.0.0",
 		"@typescript-eslint/parser": "^6.0.0",
 		"eslint": "^8.28.0",
@@ -30,5 +31,8 @@
 		"vite": "^4.4.2",
 		"vitest": "^0.34.0"
 	},
-	"type": "module"
+	"type": "module",
+	"dependencies": {
+		"pg": "^8.11.3"
+	}
 }

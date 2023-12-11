@@ -10,12 +10,15 @@ CREATE TABLE songs (
     band_id UUID,
     title VARCHAR(100),
     key VARCHAR(10),
+    mode VARCHAR(50),
     FOREIGN KEY (band_id) REFERENCES bands(band_id)
 );
 
 CREATE TABLE sections (
     section_id UUID PRIMARY KEY,
     song_id UUID,
+    key VARCHAR(10),
+    mode VARCHAR(50),
     order_in_song INT,
     name VARCHAR(50),
     FOREIGN KEY (song_id) REFERENCES songs(song_id)

@@ -2,14 +2,16 @@
 import type { Chord, ChordProgression } from './interfaces';
 import { chordToNashvilleChord } from './nashville-chord';
 import { splitChord } from './chord-splitter';
+import type { Song } from './interfaces';
 
 export class SongAnalyzer {
     key: string;
     mode: string;
-  
+    song: Song;
     constructor(key: string, mode: string = 'Ionian') {
       this.key = key;
       this.mode = mode;
+      this.song = {} as Song;
     }
   
     chordProgressionToNashville(chordProgression: Chord[]): Chord[] {

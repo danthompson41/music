@@ -80,15 +80,15 @@ export function chordToNashvilleChord(key: string, mode: string, chord: Chord): 
 
 	const number = getNashvilleNumber(chord.root, scale);
 	let bassNote: string | undefined = undefined;
-	if (chord.bassNote) {
-		bassNote = getNashvilleNumber(chord.bassNote, scale);
+	if (chord.bass_note) {
+		bassNote = getNashvilleNumber(chord.bass_note, scale);
 	}
 
 	const outChord: Chord = {
 		root: number,
-		chordType: chord.chordType,
+		chord_type: chord.chord_type,
 		extension: chord.extension,
-		bassNote: bassNote,
+		bass_note: bassNote,
 		extra: chord.extra
 	};
 
@@ -97,10 +97,11 @@ export function chordToNashvilleChord(key: string, mode: string, chord: Chord): 
 }
 
 export function fmtNashvilleNotation(chord: Chord): string {
-	let nashvilleNotation = chord.root;
+  console.log(chord)
+	let nashvilleNotation = chord.degree;
 	let nashvilleType = '';
 
-	switch (chord.chordType) {
+	switch (chord.chord_type) {
 		case 'minor':
 			nashvilleType += 'm';
 			break;
@@ -111,16 +112,16 @@ export function fmtNashvilleNotation(chord: Chord): string {
 			nashvilleType += 'dom';
 			break;
 		default:
-			nashvilleType += chord.chordType;
+			nashvilleType += chord.chord_type;
 	}
 
-	if (['1', '4', '5'].includes(chord.root) && chord.chordType === 'major' && !chord.extension) {
+	if (['1', '4', '5'].includes(chord.degree) && chord.chord_type === 'major' && !chord.extension) {
 		nashvilleType = '';
 	}
-	if (['2', '3', '6'].includes(chord.root) && chord.chordType === 'minor' && !chord.extension) {
+	if (['2', '3', '6'].includes(chord.degree) && chord.chord_type === 'minor' && !chord.extension) {
 		nashvilleType = '';
 	}
-	if (chord.root === '7' && chord.chordType === 'dominant' && !chord.extension) {
+	if (chord.degree === '7' && chord.chord_type === 'dominant' && !chord.extension) {
 		nashvilleType = '';
 	}
 
@@ -134,8 +135,8 @@ export function fmtNashvilleNotation(chord: Chord): string {
 		nashvilleNotation += chord.extra;
 	}
 
-	if (chord.bassNote) {
-		nashvilleNotation += '/' + chord.bassNote;
+	if (chord.bass_note) {
+		nashvilleNotation += '/' + chord.bass_note;
 	}
 
 	return nashvilleNotation;

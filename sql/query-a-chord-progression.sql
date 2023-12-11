@@ -1,5 +1,7 @@
 SELECT
     c.degree,
+    s.title,
+    sp.progression_id,
     c.chord_type,
     c.bass_note,
     c.extension,
