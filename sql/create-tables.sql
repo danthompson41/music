@@ -1,17 +1,10 @@
-drop table bands, songs, sections, chord_progressions, section_progressions, chords, progression_chords cascade;
-
-CREATE TABLE bands (
-    band_id UUID PRIMARY KEY,
-    name VARCHAR(100)
-);
+drop table songs, sections, chord_progressions, section_progressions, chords, progression_chords cascade;
 
 CREATE TABLE songs (
     song_id UUID PRIMARY KEY,
-    band_id UUID,
     title VARCHAR(100),
     key VARCHAR(10),
-    mode VARCHAR(50),
-    FOREIGN KEY (band_id) REFERENCES bands(band_id)
+    mode VARCHAR(50)
 );
 
 CREATE TABLE sections (

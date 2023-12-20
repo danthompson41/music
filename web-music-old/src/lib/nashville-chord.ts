@@ -1,4 +1,4 @@
-import type { Chord, NashvilleChord } from './types';
+import type { Chord } from './interfaces';
 
 interface NoteTuple {
 	[index: number]: string;
@@ -70,34 +70,33 @@ export function getNashvilleNumber(note: string, scale: NoteTuple[]): string {
 	return `b${scale.findIndex((s) => s === notesSet[noteIndex]) + 2}`;
 }
 
-export function chordToNashvilleChord(key: string, mode: string, chord: Chord): NashvilleChord{
+export function chordToNashvilleChord(key: string, mode: string, chord: Chord): Chord | string{
 	console.log('Converting chord to Nashville notation:', chord, 'in', key, mode);
 
 	const scale = getScale(key, mode);
 	if (typeof scale === 'string') {
-		return {} as NashvilleChord;
+		return scale; // Handle error if scale not found
 	}
 
-	const number = getNashvilleNumber(chord.root_note, scale);
+	const number = getNashvilleNumber(chord.root, scale);
 	let bassNote: string | undefined = undefined;
 	if (chord.bass_note) {
 		bassNote = getNashvilleNumber(chord.bass_note, scale);
 	}
 
-	const outChord: NashvilleChord = {
-		degree: number,
+	const outChord: Chord = {
+		root: number,
 		chord_type: chord.chord_type,
 		extension: chord.extension,
 		bass_note: bassNote,
-		extra: chord.extra,
-		chord_id: ''
+		extra: chord.extra
 	};
 
 	console.log('Converted Chord:', outChord);
 	return outChord;
 }
 
-export function fmtNashvilleNotation(chord: NashvilleChord): string {
+export function fmtNashvilleNotation(chord: Chord): string {
   console.log(chord)
 	let nashvilleNotation = chord.degree;
 	let nashvilleType = '';

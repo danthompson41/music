@@ -1,5 +1,5 @@
 import { Pool } from 'pg';
-import type { Song, Section, ChordProgression, Chord } from './types';
+import type { Song, Section, ChordProgression, Chord } from './interfaces';
 import { uuid } from 'uuidv4';
 
 // Initialize a new pool

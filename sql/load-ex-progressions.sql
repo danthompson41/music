@@ -1,10 +1,6 @@
-INSERT INTO bands (band_id, name) VALUES
-('111e4567-e89b-12d3-a456-426655440000', 'The Harmonics'),
-('111e4567-e89b-12d3-a456-426655440001', 'Melody Makers');
-
-INSERT INTO songs (song_id, band_id, title, key, mode) VALUES
-('211e4567-e89b-12d3-a456-426655440000', '111e4567-e89b-12d3-a456-426655440000', 'Sunrise Symphony', 'C', 'Ionian'),
-('211e4567-e89b-12d3-a456-426655440001', '111e4567-e89b-12d3-a456-426655440001', 'Evening Rhapsody', 'G', 'Ionian');
+INSERT INTO songs (song_id, title, key, mode) VALUES
+('211e4567-e89b-12d3-a456-426655440000', 'Sunrise Symphony', 'C', 'Ionian'),
+('211e4567-e89b-12d3-a456-426655440001', 'Evening Rhapsody', 'G', 'Ionian');
 
 INSERT INTO sections (section_id, song_id, order_in_song, name, key, mode) VALUES
 ('311e4567-e89b-12d3-a456-426655440000', '211e4567-e89b-12d3-a456-426655440000', 1, 'Intro', 'C', 'Ionian'),

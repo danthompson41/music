@@ -1,14 +1,14 @@
-import type { Chord } from './types';
+import type { Chord } from './interfaces';
 
-export function splitChord(chord: string): Chord {
+export function splitChord(chord: string): Chord | string {
     const pattern = /^([A-G][#b]?)(maj|min|m|dim|aug|sus|add)?(2|4|6|7|9|11|13)?([^/]*)\/?([A-G][#b]?)?$/;
     const match = pattern.exec(chord);
 
     if (!match) {
-        return null as unknown as Chord; // Return null if the chord doesn't match the pattern
+        return "Invalid chord format";
     }
 
-    const [, root_note, quality, extension, extra, bassNote] = match;
+    const [, degree, quality, extension, extra, bassNote] = match;
 
     let chordType: string;
     if (quality === 'm' || quality === 'min') {
@@ -22,8 +22,7 @@ export function splitChord(chord: string): Chord {
     }
 
     return {
-        chord_id: '', // Add the missing chord_id property
-        root_note,
+        degree,
         chord_type: chordType,
         extension,
         bass_note: bassNote,
