@@ -72,7 +72,9 @@ export function getNashvilleNumber(note: string, scale: NoteTuple[]): string {
 
 export function chordToNashvilleChord(key: string, mode: string, chord: Chord): NashvilleChord{
 	console.log('Converting chord to Nashville notation:', chord, 'in', key, mode);
-
+	if (!chord) {
+		return {} as NashvilleChord;
+	}
 	const scale = getScale(key, mode);
 	if (typeof scale === 'string') {
 		return {} as NashvilleChord;
