@@ -17,6 +17,7 @@ export interface NashvilleChord {
 }
 
 export interface ChordProgression {
+    update(): unknown;
     chord_progression_id: string;
     chord_input: string;
     key: string;
@@ -37,4 +38,9 @@ export interface Song {
     sections: SongSection[];
 }
 
-
+export interface ChordMovement {
+    root_from: string
+    root_to: string
+    delta_up: number
+    delta_down: number
+}

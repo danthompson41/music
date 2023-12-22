@@ -100,7 +100,6 @@ export function chordToNashvilleChord(key: string, mode: string, chord: Chord): 
 }
 
 export function fmtNashvilleNotation(chord: NashvilleChord): string {
-  console.log(chord)
 	let nashvilleNotation = chord.degree;
 	let nashvilleType = '';
 
