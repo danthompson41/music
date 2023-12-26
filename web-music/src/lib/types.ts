@@ -24,6 +24,7 @@ export interface ChordProgression {
     mode: string;
     derived_chords: Chord[];
     derived_nashville_chords: NashvilleChord[];
+    derived_movements: ChordMovement[]
   }
 
 export interface SongSection {
@@ -41,6 +42,8 @@ export interface Song {
 export interface ChordMovement {
     root_from: string
     root_to: string
-    delta_up: number
-    delta_down: number
+    delta_up: string
+    delta_down: string
+    half_steps_up: number
+    half_steps_down: number
 }

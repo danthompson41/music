@@ -22,12 +22,13 @@ export function splitChord(chord: string): Chord | string {
     }
 
     return {
+        chord_id: '', // Add a placeholder value for chord_id
         degree,
         chord_type: chordType,
         extension,
         bass_note: bassNote,
         extra
-    };
+    } as Chord; // Cast the object to the Chord type
 }
 
 // Example usage
