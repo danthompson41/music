@@ -10,12 +10,6 @@
 
   let songs_list: Song[] = [];
 
-  // let key = "G"; // Key of the song
-  // let preChorusInput = "Em7 Asus2/F#";
-  // let chorusInput = "G G/A B7sus4 Em Gmaj7 A/F# Bm/E Gmaj7/A A/D";
-  // let outroInput =
-  //   "Em7 Asus/F# G G/A B7sus4 Em Gmaj7 A/F# Bm/E Gmaj7/A A/D G(b5)/Db F#aug";
-
   // Function to add a new song
   async function addNewSong() {
     console.log("New Song");
@@ -75,6 +69,16 @@
       ];
   }
 
+  async function updateChordProgressionKey(
+    key: string,
+    i: number,
+    j: number
+  ) {
+    if (song) song.sections[i].chord_progressions[j].key = key;
+    song.sections[i].chord_progressions[j].update();
+    console.log(song?.sections[i].chord_progressions);
+  }
+
   async function updateChordProgression(
     chord_input: string,
     i: number,
@@ -117,11 +121,10 @@
         {#each song_section.chord_progressions as chord_progression, j}
           <ul>
             <li>
+              <input type="text" bind:value={chord_progression.key} on:blur={updateChordProgressionKey(chord_progression.key,i,j)}/>
+            </li>
+            <li>
               <input type="text" bind:value={chord_progression.chord_input} on:blur={updateChordProgression(chord_progression.chord_input,i,j)}/>
-              <!-- <EditableText
-                value={chord_progression.chord_input}
-                on:save={(e) => updateChordProgression(e, i, j)}
-              ></EditableText> -->
             </li>
           </ul>
           {#each chord_progression.derived_nashville_chords as notation}
