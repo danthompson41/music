@@ -18,12 +18,23 @@
     song_title = $currentSong.title;
   }
 
+  $: if ($currentSong?.song_key) {
+    $currentSong.sections.forEach(section => {
+      section.chord_progressions.forEach(progression => {
+        progression.key = $currentSong?.song_key;
+        progression.update();
+      });
+    });
+  }
+  
   // Functions
   function addNewSong() {
     const newSong: Song = {
       title: "New Song",
       sections: [],
       song_id: uuidv4(),
+      song_key: 'C',
+      song_mode: 'Ionian'
     };
 
     songs.update(allSongs => {
@@ -83,7 +94,7 @@
   function addNewChordProgression(sectionIndex: number) {
     currentSong.update(song => {
       if (song && song.sections[sectionIndex]) {
-        let newProgression = new ChordStreamAnalyzer("C", "C");
+        let newProgression = new ChordStreamAnalyzer("", $currentSong?.song_key, $currentSong?.song_mode);
         song.sections[sectionIndex].chord_progressions.push(newProgression);
       }
       return song;
@@ -111,6 +122,8 @@
       return song;
     });
   }
+
+
 </script>
 
 <div>
@@ -127,6 +140,8 @@
 <div>
   <EditableText value={song_title} on:save={(e) => updateTitle(e.detail)}></EditableText>
   {#if $currentSong}
+  <p>input key: <input type="text" bind:value={$currentSong.song_key} /></p>
+  <p>input mode: <input type="text" bind:value={$currentSong.song_mode} /></p>
     <ul>
       <li><button on:click={addNewSection}>Add Section</button></li>
       {#each $currentSong.sections as section, sectionIndex}
@@ -134,9 +149,9 @@
           <EditableText value={section.name} on:save={(e) => updateSection(e.detail, sectionIndex)}></EditableText>
           {#each section.chord_progressions as progression, progressionIndex}
             <ul>
-              <li>
+              <!-- <li>
                 <input type="text" bind:value={progression.key} on:blur={() => updateChordProgressionKey(progression.key, sectionIndex, progressionIndex)} />
-              </li>
+              </li> -->
               <li>
                 <input type="text" bind:value={progression.chord_input} on:blur={() => updateChordProgression(progression.chord_input, sectionIndex, progressionIndex)} />
               </li>
@@ -165,7 +180,6 @@
   }
 
   input[type="text"] {
-    width: 100%;
     padding: 0.5rem;
     border: 1px solid #ccc;
     border-radius: 4px;

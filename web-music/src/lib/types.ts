@@ -37,6 +37,8 @@ export interface Song {
     title: string;
     song_id: string;
     sections: SongSection[];
+    song_key: string;
+    song_mode: string;
 }
 
 export interface ChordMovement {
