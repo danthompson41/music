@@ -1,177 +1,158 @@
 <script lang="ts">
+  import { writable } from 'svelte/store';
   import { ChordStreamAnalyzer } from "$lib/chord-input-analyzer";
   import { fmtNashvilleNotation } from "$lib/nashville-chord";
   import EditableText from "$lib/EditableText.svelte";
   import type { Song, SongSection, Chord } from "$lib/types";
   import { v4 as uuidv4 } from "uuid";
 
-  let song: Song | null = null;
-  let current_song_index: number | null = null;
+  // Stores
+  const songs = writable<Song[]>([]);
+  const currentSongIndex = writable<number | null>(null);
+  const currentSong = writable<Song | null>(null);
 
-  let songs_list: Song[] = [];
+  // Reactive variables
+  let song_title = '';
 
-  // Function to add a new song
-  async function addNewSong() {
-    console.log("New Song");
-    let new_song: Song = {
+  $: if ($currentSong) {
+    song_title = $currentSong.title;
+  }
+
+  // Functions
+  function addNewSong() {
+    const newSong: Song = {
       title: "New Song",
       sections: [],
       song_id: uuidv4(),
     };
-    songs_list = [...songs_list, new_song];
-    console.log(songs_list);
-    current_song_index = songs_list.length - 1;
-    song = songs_list[current_song_index];
-    console.log(current_song_index);
+
+    songs.update(allSongs => {
+      allSongs.push(newSong);
+      return allSongs;
+    });
+
+    currentSongIndex.set($songs.length - 1);
+    currentSong.set(newSong);
   }
 
-  async function chooseSong(song_index: number) {
-    console.log("Setting song");
-    current_song_index = song_index;
-    song = songs_list[song_index];
-    console.log(song);
-  }
-  let song_title = "";
-
-  async function updateTitle(event: CustomEvent) {
-    song_title = event.detail;
-    if (song) song.title = song_title;
-    console.log(song_title);
-    console.log(song);
+  function chooseSong(index: number) {
+    currentSongIndex.set(index);
+    currentSong.set($songs[index]);
   }
 
-  async function addNewSection() {
-    console.log("Adding new section");
-    let new_section: SongSection = {
-      section_id: uuidv4(),
-      name: "New Section",
-      chord_progressions: [],
-    };
-    if (song != null) song.sections = [...song.sections, new_section];
+  function updateTitle(newTitle: string) {
+    currentSong.update(song => {
+      if (song) {
+        song.title = newTitle;
+      }
+      return song;
+    });
+    songs.update(allSongs => {
+      if (!$currentSongIndex) return allSongs;
+      if (allSongs[$currentSongIndex]) {
+        allSongs[$currentSongIndex].title = newTitle;
+      }
+      return allSongs;
+    });
   }
 
-  async function updateSection(event: CustomEvent, i: number) {
-    let section_title = event.detail;
-    if (song) song.sections[i].name = section_title;
-    console.log(song?.sections[i]);
+  function addNewSection() {
+    currentSong.update(song => {
+      if (song) {
+        let newSection: SongSection = {
+          section_id: uuidv4(),
+          name: "New Section",
+          chord_progressions: []
+        };
+        song.sections.push(newSection);
+        addNewChordProgression(song.sections.length - 1);
+      }
+      return song;
+    });
   }
 
-  async function addNewChordProgression(i: number) {
-    console.log("Adding new progression");
-    let new_progression: ChordStreamAnalyzer = new ChordStreamAnalyzer(
-      "C",
-      "C"
-    );
-    if (song != null)
-      song.sections[i].chord_progressions = [
-        ...song.sections[i].chord_progressions,
-        new_progression,
-      ];
+  function updateSection(newName: string, sectionIndex: number) {
+    currentSong.update(song => {
+      if (song && song.sections[sectionIndex]) {
+        song.sections[sectionIndex].name = newName;
+      }
+      return song;
+    });
   }
 
-  async function updateChordProgressionKey(
-    key: string,
-    i: number,
-    j: number
-  ) {
-    if (song) song.sections[i].chord_progressions[j].key = key;
-    song.sections[i].chord_progressions[j].update();
-    console.log(song?.sections[i].chord_progressions);
+  function addNewChordProgression(sectionIndex: number) {
+    currentSong.update(song => {
+      if (song && song.sections[sectionIndex]) {
+        let newProgression = new ChordStreamAnalyzer("C", "C");
+        song.sections[sectionIndex].chord_progressions.push(newProgression);
+      }
+      return song;
+    });
   }
 
-  async function updateChordProgression(
-    chord_input: string,
-    i: number,
-    j: number
-  ) {
-    if (song) song.sections[i].chord_progressions[j].chord_input = chord_input;
-    song.sections[i].chord_progressions[j].update();
-    console.log(song?.sections[i].chord_progressions);
+  function updateChordProgressionKey(newKey: string, sectionIndex: number, progressionIndex: number) {
+    currentSong.update(song => {
+      if (song && song.sections[sectionIndex]?.chord_progressions[progressionIndex]) {
+        let progression = song.sections[sectionIndex].chord_progressions[progressionIndex];
+        progression.key = newKey;
+        progression.update(); // Assuming update is a method of ChordStreamAnalyzer
+      }
+      return song;
+    });
   }
 
-  $: songs_list[current_song_index] = song;
-  console.log("Updated song index");
-  $: if (song != null) song_title = song?.title;
+  function updateChordProgression(chordInput: string, sectionIndex: number, progressionIndex: number) {
+    currentSong.update(song => {
+      if (song && song.sections[sectionIndex]?.chord_progressions[progressionIndex]) {
+        let progression = song.sections[sectionIndex].chord_progressions[progressionIndex];
+        progression.chord_input = chordInput;
+        progression.update(); // Assuming update is a method of ChordStreamAnalyzer
+      }
+      return song;
+    });
+  }
 </script>
 
 <div>
   <button on:click={addNewSong}>Add New Song</button>
-
   <ul>
-    {#each songs_list as song_list_song, i}
+    {#each $songs as song, i}
       <li>
-        <button on:click={() => chooseSong(i)}>{song_list_song.title}</button>
+        <button on:click={() => chooseSong(i)}>{song.title}</button>
       </li>
     {/each}
   </ul>
 </div>
+
 <div>
-  <EditableText value={song_title} on:save={(e) => updateTitle(e)}
-  ></EditableText>
-  {#if song != null}
+  <EditableText value={song_title} on:save={(e) => updateTitle(e.detail)}></EditableText>
+  {#if $currentSong}
     <ul>
       <li><button on:click={addNewSection}>Add Section</button></li>
-      {#each song.sections as song_section, i}
+      {#each $currentSong.sections as section, sectionIndex}
         <li>
-          <EditableText
-            value={song_section.name}
-            on:save={(e) => updateSection(e, i)}
-          ></EditableText>
-        </li>
-        {#each song_section.chord_progressions as chord_progression, j}
-          <ul>
-            <li>
-              <input type="text" bind:value={chord_progression.key} on:blur={updateChordProgressionKey(chord_progression.key,i,j)}/>
-            </li>
-            <li>
-              <input type="text" bind:value={chord_progression.chord_input} on:blur={updateChordProgression(chord_progression.chord_input,i,j)}/>
-            </li>
-          </ul>
-          {#each chord_progression.derived_nashville_chords as notation}
+          <EditableText value={section.name} on:save={(e) => updateSection(e.detail, sectionIndex)}></EditableText>
+          {#each section.chord_progressions as progression, progressionIndex}
             <ul>
-              <li>{fmtNashvilleNotation(notation)}</li>
+              <li>
+                <input type="text" bind:value={progression.key} on:blur={() => updateChordProgressionKey(progression.key, sectionIndex, progressionIndex)} />
+              </li>
+              <li>
+                <input type="text" bind:value={progression.chord_input} on:blur={() => updateChordProgression(progression.chord_input, sectionIndex, progressionIndex)} />
+              </li>
             </ul>
+            {#each progression.derived_nashville_chords as notation}
+              <ul>
+                <li>{fmtNashvilleNotation(notation)}</li>
+              </ul>
+            {/each}
           {/each}
-        {/each}
-        <button on:click={() => addNewChordProgression(i)}
-          >Add New Progression</button
-        >
+          <button on:click={() => addNewChordProgression(sectionIndex)}>Add New Progression</button>
+        </li>
       {/each}
     </ul>
   {/if}
 </div>
-
-<!-- 
-  
-  <div class="input-section">
-    <label for="keyInput">Key:</label>
-    <input type="text" id="keyInput" bind:value={key} />
-  </div>
-  
-  <div class="input-section">
-    <label for="preChorus">Pre-Chorus Progression:</label>
-    <input type="text" id="preChorus" bind:value={preChorusInput} />
-  </div>
-  
-  <div class="input-section">
-    <label for="chorus">Chorus Progression:</label>
-    <input type="text" id="chorus" bind:value={chorusInput} />
-  </div>
-  
-  <div class="input-section">
-    <label for="outro">Outro Progression:</label>
-    <input type="text" id="outro" bind:value={outroInput} />
-  </div>
-  
-  {#each song.sections as section, i}
-    <h2 class="text-2xl font-bold">{section.name}</h2>
-    {#each section.chord_progressions as chord_progression, j}
-      <h3 class="text-xl font-bold">{chord_progression.chord_input}</h3>
-      {#each chord_progression.derived_nashville_chords as notation}
-        <p>* {fmtNashvilleNotation(notation)}</p>
-      {/each}
-    {/each}
-  {/each} -->
 
 <style>
   .input-section {
