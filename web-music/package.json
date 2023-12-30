@@ -24,7 +24,9 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@prisma/client": "^5.7.1",
 		"@sveltejs/adapter-vercel": "^4.0.3",
+		"prisma": "^5.7.1",
 		"uuid": "^9.0.1"
 	}
 }

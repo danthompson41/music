@@ -92,7 +92,7 @@ export class SongService {
                 await pool.query(sectionQuery);
 
                 // Process each chord progression
-                for (const [index, chordProgression] of section.chord_progressions.entries()) {
+                for (const [index, chordProgression] of section.progressions.entries()) {
                     console.log("Index", index, " Chord Progression: ", chordProgression)
                     let progression_id = chordProgression.progression_id || uuid();
                     let progressionQuery = `INSERT INTO chord_progressions (progression_id) VALUES ('${progression_id}')

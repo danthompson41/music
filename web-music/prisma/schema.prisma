@@ -1,0 +1,99 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "cockroachdb"
+  url      = env("DATABASE_URL")
+}
+
+model Song {
+  song_id   String         @id @default(uuid())
+  title     String
+  song_key  String?
+  song_mode String?
+  sections  SongSection[]
+}
+
+model SongSection {
+  section_id     String            @id @default(uuid())
+  song_id        String
+  name           String
+  section_order  Int
+  song           Song              @relation(fields: [song_id], references: [song_id])
+  progressions   ChordProgression[]
+}
+
+model ChordProgression {
+  chord_progression_id String                 @id @default(uuid())
+  section_id           String
+  chord_input          String?
+  key                  String?
+  mode                 String?
+  progression_order    Int
+  section              SongSection            @relation(fields: [section_id], references: [section_id])
+  chords               ProgressionChord[]
+  nashvilleChords      ProgressionNashvilleChord[]
+  movements            ProgressionChordMovement[]
+}
+
+model Chord {
+  chord_id   String              @id @default(uuid())
+  root_note  String
+  chord_type String
+  extension  String?
+  bass_note  String?
+  extra      String?
+  progressions ProgressionChord[]
+}
+
+model NashvilleChord {
+  chord_id   String                      @id @default(uuid())
+  degree     String
+  chord_type String
+  extension  String?
+  bass_note  String?
+  extra      String?
+  progressions ProgressionNashvilleChord[]
+}
+
+model ChordMovement {
+  movement_id     String                    @id @default(uuid())
+  root_from       String
+  root_to         String
+  delta_up        String
+  delta_down      String
+  half_steps_up   Int
+  half_steps_down Int
+  progressions    ProgressionChordMovement[]
+}
+
+model ProgressionChord {
+  chord_progression_id String
+  chord_id             String
+  chord_order          Int
+  chordProgression     ChordProgression @relation(fields: [chord_progression_id], references: [chord_progression_id])
+  chord                Chord           @relation(fields: [chord_id], references: [chord_id])
+  @@id([chord_progression_id, chord_id, chord_order])
+}
+
+model ProgressionNashvilleChord {
+  chord_progression_id String
+  nashville_chord_id   String
+  nashville_chord_order Int
+  chordProgression     ChordProgression @relation(fields: [chord_progression_id], references: [chord_progression_id])
+  nashvilleChord       NashvilleChord   @relation(fields: [nashville_chord_id], references: [chord_id])
+  @@id([chord_progression_id, nashville_chord_id, nashville_chord_order])
+}
+
+model ProgressionChordMovement {
+  chord_progression_id String
+  movement_id          String
+  movement_order       Int
+  chordProgression     ChordProgression @relation(fields: [chord_progression_id], references: [chord_progression_id])
+  movement             ChordMovement    @relation(fields: [movement_id], references: [movement_id])
+  @@id([chord_progression_id, movement_id, movement_order])
+}

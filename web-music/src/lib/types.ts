@@ -24,13 +24,15 @@ export interface ChordProgression {
     mode: string;
     derived_chords: Chord[];
     derived_nashville_chords: NashvilleChord[];
-    derived_movements: ChordMovement[]
+    derived_movements: ChordMovement[];
+    progression_order: number;
   }
 
 export interface SongSection {
     section_id: string;
     name: string;
-    chord_progressions: ChordProgression[];
+    progressions: ChordProgression[];
+    section_order: number;
 }
 
 export interface Song {
