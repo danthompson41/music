@@ -18,22 +18,23 @@
       const response = await fetch("/api/songs");
       const data = await response.json();
       songs.update((allSongs) => {
-      data.forEach((song: Song) => {
-        for (let i = 0; i < song.sections.length; i++) {
-          song.sections[i].progressions.forEach((progression, j) => {
-            song.sections[i].progressions[j] = new ChordStreamAnalyzer(
-              progression.chord_input,
-              song.song_key,
-              song.song_mode
-            );
-          });
-        }
-        allSongs.push(song);
+        data.forEach((song: Song) => {
+          for (let i = 0; i < song.sections.length; i++) {
+            song.sections[i].progressions.forEach((progression, j) => {
+              song.sections[i].progressions[j] = new ChordStreamAnalyzer(
+                progression.chord_input,
+                song.song_key,
+                song.song_mode,
+                progression.chord_progression_id
+              );
+            });
+          }
+          allSongs.push(song);
+        });
+        // allSongs = data;
+        console.log(allSongs);
+        return allSongs;
       });
-      // allSongs = data;
-      console.log(allSongs)
-      return allSongs;
-    });
     }
   });
   // Reactive variables
@@ -47,16 +48,17 @@
         section.progressions[i] = new ChordStreamAnalyzer(
           progression.chord_input,
           $currentSong?.song_key,
-          $currentSong?.song_mode
+          $currentSong?.song_mode,
+          progression.chord_progression_id
         );
         return progression;
       });
     });
-    console.log("Debug currentSong:", $currentSong)
+    console.log("Debug currentSong:", $currentSong);
   }
 
   $: if ($currentSong?.song_key) {
-    console.log($currentSong)
+    console.log($currentSong);
     $currentSong.sections.forEach((section) => {
       if (!section.progressions) return;
       section.progressions.forEach((progression) => {
@@ -66,7 +68,7 @@
           $currentSong?.song_mode
         );
         progression.key = $currentSong?.song_key;
-        console.log("Debug progressions:", progression)
+        console.log("Debug progressions:", progression);
         progression.update();
       });
     });
@@ -95,7 +97,7 @@
       .then((res) => res.json());
     songs.update((allSongs) => {
       allSongs.push(newSong);
-      console.log(allSongs)
+      console.log(allSongs);
       return allSongs;
     });
 
@@ -106,18 +108,15 @@
   function chooseSong(index: number) {
     currentSongIndex.set(index);
     currentSong.set($songs[index]);
-    console.log("Current song---",$currentSong)
+    console.log("Current song---", $currentSong);
   }
 
-  function updateTitle(newTitle: string) {
-    currentSong.update((song) => {
-      if (song) {
-        song.title = newTitle;
-      }
-      const response = fetch("/api/songs", {
-      method: "PATCH",
+  function deleteProgression(id: string) {
+    console.log("Delete progression", id);
+    const response = fetch("/api/progressions", {
+      method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(song),
+      body: JSON.stringify({"chord_progression_id":id}),
     })
       .then((res) => {
         if (!res.ok) {
@@ -126,9 +125,28 @@
         return res;
       })
       .then((res) => res.json());
+  }
+
+  function updateTitle(newTitle: string) {
+    currentSong.update((song) => {
+      if (song) {
+        song.title = newTitle;
+      }
+      const response = fetch("/api/songs", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(song),
+      })
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(res.statusText);
+          }
+          return res;
+        })
+        .then((res) => res.json());
       return song;
     });
-    
+
     songs.update((allSongs) => {
       if (!$currentSongIndex) return allSongs;
       if (allSongs[$currentSongIndex]) {
@@ -169,7 +187,8 @@
         let newProgression = new ChordStreamAnalyzer(
           "",
           $currentSong?.song_key,
-          $currentSong?.song_mode
+          $currentSong?.song_mode,
+          null
         );
         song.sections[sectionIndex].progressions.push(newProgression);
       }
@@ -183,10 +202,7 @@
     progressionIndex: number
   ) {
     currentSong.update((song) => {
-      if (
-        song &&
-        song.sections[sectionIndex]?.progressions[progressionIndex]
-      ) {
+      if (song && song.sections[sectionIndex]?.progressions[progressionIndex]) {
         let progression =
           song.sections[sectionIndex].progressions[progressionIndex];
         progression.key = newKey;
@@ -202,10 +218,7 @@
     progressionIndex: number
   ) {
     currentSong.update((song) => {
-      if (
-        song &&
-        song.sections[sectionIndex]?.progressions[progressionIndex]
-      ) {
+      if (song && song.sections[sectionIndex]?.progressions[progressionIndex]) {
         let progression =
           song.sections[sectionIndex].progressions[progressionIndex];
         progression.chord_input = chordInput;
@@ -242,31 +255,39 @@
             on:save={(e) => updateSection(e.detail, sectionIndex)}
           ></EditableText>
           {#if section.progressions.length != 0}
-          {#each section.progressions as progression, progressionIndex}
-            <ul>
-              <li>
-                <input
-                  type="text"
-                  bind:value={progression.chord_input}
-                  on:blur={() =>
-                    updateChordProgression(
-                      progression.chord_input,
-                      sectionIndex,
-                      progressionIndex
-                    )}
-                />
-              </li>
-            </ul>
-            {#each progression.derived_nashville_chords as notation}
+            {#each section.progressions as progression, progressionIndex}
               <ul>
-                <li>{fmtNashvilleNotation(notation)}</li>
+                <li>
+                  <p>Progression id: {progression.chord_progression_id}</p>
+                  <p>Section id: {section.section_id}</p>
+                  <input
+                    type="text"
+                    bind:value={progression.chord_input}
+                    on:blur={() =>
+                      updateChordProgression(
+                        progression.chord_input,
+                        sectionIndex,
+                        progressionIndex
+                      )}
+                  />
+                  <button
+                    on:click={() =>
+                      deleteProgression(progression.chord_progression_id)}
+                  >
+                    Delete {progression.chord_progression_id}
+                  </button>
+                </li>
               </ul>
+              {#each progression.derived_nashville_chords as notation}
+                <ul>
+                  <li>{fmtNashvilleNotation(notation)}</li>
+                </ul>
+              {/each}
             {/each}
-          {/each}
           {/if}
-          <button on:click={() => addNewChordProgression(sectionIndex)}
-            >Add New Progression</button
-          >
+          <button on:click={() => addNewChordProgression(sectionIndex)}>
+            Add New Progression
+          </button>
         </li>
       {/each}
     </ul>

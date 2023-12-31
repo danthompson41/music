@@ -122,3 +122,24 @@ export const PATCH: RequestHandler = async ({ request }) => {
         return new Response('Internal Server Error', { status: 500 });
     }
 };
+
+export const DELETE: RequestHandler = async ({ request }) => {
+    try {
+        const { song_id } = await request.json();
+        if (!song_id) {
+            return new Response('Song ID is required', { status: 400 });
+        }
+
+        // Delete the song from the database
+        await prisma.song.delete({
+            where: { song_id },
+        });
+
+        return new Response('Song deleted successfully', {
+            status: 200,
+        });
+    } catch (error) {
+        console.error('Error deleting the song:', error);
+        return new Response('Internal Server Error', { status: 500 });
+    }
+};

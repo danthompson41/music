@@ -16,10 +16,10 @@ export class ChordStreamAnalyzer implements ChordProgression {
   derived_nashville_chords: NashvilleChord[];
   derived_movements: ChordMovement[];
   progression_order: number;
-  constructor(chord_stream: string, key: string, mode: string = "Ionian") {
+  constructor(chord_stream: string, key: string, mode: string = "Ionian", progression_id: string | null) {
     this.key = key;
     this.mode = mode;
-    this.chord_progression_id = uuidv4();
+    this.chord_progression_id = progression_id || uuidv4();
     this.chord_input = chord_stream.trim();
     this.derived_chords = this.splitChordProgression(this.chord_input);
     this.derived_nashville_chords = this.chordProgressionToNashville(
