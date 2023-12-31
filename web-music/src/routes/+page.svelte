@@ -127,6 +127,22 @@
       .then((res) => res.json());
   }
 
+  function deleteSection(id: string) {
+    console.log("Delete section", id);
+    const response = fetch("/api/sections", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({"section_id":id}),
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(res.statusText);
+        }
+        return res;
+      })
+      .then((res) => res.json());
+  }
+
   function updateTitle(newTitle: string) {
     currentSong.update((song) => {
       if (song) {
@@ -254,6 +270,12 @@
             value={section.name}
             on:save={(e) => updateSection(e.detail, sectionIndex)}
           ></EditableText>
+          <button
+          on:click={() =>
+            deleteSection(section.section_id)}
+        >
+          Delete {section.section_id}
+        </button>
           {#if section.progressions.length != 0}
             {#each section.progressions as progression, progressionIndex}
               <ul>
